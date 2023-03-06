@@ -73,8 +73,7 @@
 <body>
 <div class="container">
     <h1>85/95</h1>
-    <h5>过滤步骤（所有步骤输入基于上一步输出结果）：<br/>- 有效价格低于招标控制价95%;<br/>- 大于所有价格算数平均值*85%;<br/>-
-        最小值低于招标控制价85%作废标处理</h5>
+    <h5>过滤步骤（所有步骤输入基于上一步输出结果）：<br/>1.有效价格低于招标控制价95%;<br/>2.大于所有价格算数平均值*85%;<br/>3.低于招标控制价85%且低于原始投标均价95%作废标处理</h5>
     <form>
         <label for="baojia">招标价:</label>
         <input type="number" step="any" id="baojia" name="baojia"><br><br>
@@ -89,6 +88,7 @@
         <p id="resultLi95"></p>
         <p id="result85"></p>
         <p id="resultLi85"></p>
+        <p id="resultAv95"></p>
         <p id="resultLi"></p>
         <ret id="result"></ret>
         <msg id="msg"></msg>
@@ -130,6 +130,7 @@
             return;
         }
         nums.push(chujia);
+        var rawLi = nums;
         var sum95 = 0;
         // 1.取小于95
         nums = nums.filter((v) => {
@@ -147,7 +148,7 @@
             console.log(ret);
             return;
         }
-        document.getElementById('resultLi95').innerHTML = "95结果：" + nums.toString();
+        document.getElementById('resultLi95').innerHTML = "1步结果：" + nums.toString();
         var average = sum95 / nums.length;
         var average85 = average * 0.85;
         ret = "85价格：" + average85;
@@ -170,15 +171,21 @@
         nums.sort(function (a, b) {
             return a - b
         })
-        document.getElementById('resultLi85').innerHTML = "85结果：" + nums.toString();
+        document.getElementById('resultLi85').innerHTML = "2步结果：" + nums.toString();
         // 3.最小值低于招标控制价85%废标处理
-        while (nums[0] < xiangyingjia * 0.85) {
+        var sum = 0;
+        for (var i = 0; i < rawLi.length; i++) {
+            sum += rawLi[i];
+        }
+        var av95 = (sum / rawLi.length) * 0.95;
+        document.getElementById('resultAv95').innerHTML = "原始投标均价*95%：" + av95;
+        while ((nums[0] < xiangyingjia * 0.85) && (nums[0]<av95)) {
             var fb = nums.shift();
             console.log("废标：" + fb);
         }
-        document.getElementById('resultLi').innerHTML = "废标结果：" + nums.toString();
+        document.getElementById('resultLi').innerHTML = "3步结果：" + nums.toString();
         var success = chujia == nums[0]
-        ret = success ? "我方已中标" : "我方未中标";
+        ret = success ? "我方中标" : "我方未中标";
         if (success) {
             document.getElementById('result').innerHTML = ret;
         } else {
