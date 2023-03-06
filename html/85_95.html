@@ -56,34 +56,135 @@
             font-size: 18px;
             margin-top: 20px;
         }
+
+        msg {
+            font-size: 18px;
+            margin-top: 20px;
+            color: crimson;
+        }
+
+        ret {
+            font-size: 18px;
+            margin-top: 20px;
+            color: #4CAF50;
+        }
     </style>
 </head>
 <body>
 <div class="container">
     <h1>85/95</h1>
-    <h5>过滤步骤（所有步骤处理结果基于上一步过滤筛选）：<br/>- 有效价格低于招标控制价95%;<br/>- 大于所有价格算数平均值*85%;<br/>- 最小值低于招标控制价85%作废标处理</h5>
+    <h5>过滤步骤（所有步骤处理结果基于上一步过滤筛选）：<br/>- 有效价格低于招标控制价95%;<br/>- 大于所有价格算数平均值*85%;<br/>-
+        最小值低于招标控制价85%作废标处理</h5>
     <form>
-        <label for="baojia">报价:</label>
+        <label for="baojia">招标价:</label>
         <input type="number" step="any" id="baojia" name="baojia"><br><br>
         <label for="guifei">规费:</label>
         <input type="number" step="any" id="guifei" name="guifei"><br><br>
         <label for="moni">模拟对手出价(数字用空格隔开):</label>
         <input type="text" id="moni" name="moni"><br><br>
-		<label for="chujia">我方出价:</label>
-		<input type="number" step="any" id="chujia" name="chujia"><br><br>
+        <label for="chujia">我方出价:</label>
+        <input type="number" step="any" id="chujia" name="chujia"><br><br>
         <input type="button" value="计算" onclick="calculate()"><br><br>
-        <p id="result"></p>
+        <p id="result95"></p>
+        <p id="resultLi95"></p>
+        <p id="result85"></p>
+        <p id="resultLi85"></p>
+        <p id="resultLi"></p>
+        <ret id="result"></ret>
+        <msg id="msg"></msg>
     </form>
 
 </div>
 <script>
     function calculate() {
+        document.getElementById('result95').innerHTML = "";
+        document.getElementById('resultLi95').innerHTML = "";
+        document.getElementById('result85').innerHTML = "";
+        document.getElementById('resultLi85').innerHTML = "";
+        document.getElementById('resultLi').innerHTML = "";
+        document.getElementById('result').innerHTML = "";
+        document.getElementById('msg').innerHTML = "";
+        var endCalc = false
         var baojia = parseFloat(document.getElementById('baojia').value);
         var guifei = parseFloat(document.getElementById('guifei').value);
-		var xiangyingjia = baojia-guifei;
-		var v95 = xiangyingjia*0.95;
-        var result = x * x + y * y;
-        document.getElementById('result').innerHTML = "计算结果为：" + result;
+        var xiangyingjia = baojia - guifei;
+        var v95 = xiangyingjia * 0.95;
+        var ret = "95价格：" + v95 + "<br/>";
+        document.getElementById('result95').innerHTML = ret;
+        console.log(ret);
+        var chujia = parseFloat(document.getElementById('chujia').value);
+        var moni = document.getElementById('moni').value;
+        var words = moni.split(" ");
+        var nums = words.map((word) => {
+            var f = parseFloat(word)
+            if (f > 0) {
+                return f;
+            } else {
+                ret = "模拟出价输入错误：" + word;
+                endCalc = true;
+            }
+        })
+        if (endCalc) {
+            document.getElementById('msg').innerHTML = ret;
+            console.log(ret);
+            return;
+        }
+        nums.push(chujia);
+        var sum95 = 0;
+        // 1.取小于95
+        nums = nums.filter((v) => {
+            var pass = v < v95
+            if (pass) {
+                sum95 += v;
+            } else if (v === chujia) {
+                ret = "我方出价:" + chujia + " 未通过95值：" + v95;
+                endCalc = true;
+            }
+            return pass;
+        })
+        if (endCalc) {
+            document.getElementById('msg').innerHTML = ret;
+            console.log(ret);
+            return;
+        }
+        document.getElementById('resultLi95').innerHTML = "95结果：" + nums.toString();
+        var average = sum95 / nums.length;
+        var average85 = average * 0.85;
+        ret = "85价格：" + average85;
+        document.getElementById('result85').innerHTML = ret;
+        console.log(ret);
+        // 2.取大于85
+        var min = -1;
+        nums = nums.filter((v) => {
+            var pass = v > average85
+            if (pass) {
+                if (min < 0) {
+                    min = v;
+                }
+                if (min > v) {
+                    min = v;
+                }
+            }
+            return pass;
+        })
+        nums.sort(function (a, b) {
+            return a - b
+        })
+        document.getElementById('resultLi85').innerHTML = "85结果：" + nums.toString();
+        // 3.最小值低于招标控制价85%废标处理
+        while (nums[0] < xiangyingjia * 0.85) {
+            var fb = nums.shift();
+            console.log("废标：" + fb);
+        }
+        document.getElementById('resultLi').innerHTML = "废标结果：" + nums.toString();
+        var success = chujia == nums[0]
+        ret = success ? "我方已中标" : "我方未中标";
+        if (success) {
+            document.getElementById('result').innerHTML = ret;
+        } else {
+            document.getElementById('msg').innerHTML = ret;
+        }
+        console.log(ret);
     }
 </script>
 </body>
