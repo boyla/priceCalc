@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>85/95</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input[type="button"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            float: right;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 18px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>85/95</h1>
+    <h5>过滤步骤（所有步骤处理结果基于上一步过滤筛选）：<br/>- 有效价格低于招标控制价95%;<br/>- 大于所有价格算数平均值*85%;<br/>- 最小值低于招标控制价85%作废标处理</h5>
+    <form>
+        <label for="baojia">报价:</label>
+        <input type="number" step="any" id="baojia" name="baojia"><br><br>
+        <label for="guifei">规费:</label>
+        <input type="number" step="any" id="guifei" name="guifei"><br><br>
+        <label for="moni">模拟对手出价(数字用空格隔开):</label>
+        <input type="text" id="moni" name="moni"><br><br>
+		<label for="chujia">我方出价:</label>
+		<input type="number" step="any" id="chujia" name="chujia"><br><br>
+        <input type="button" value="计算" onclick="calculate()"><br><br>
+        <p id="result"></p>
+    </form>
+
+</div>
+<script>
+    function calculate() {
+        var baojia = parseFloat(document.getElementById('baojia').value);
+        var guifei = parseFloat(document.getElementById('guifei').value);
+		var xiangyingjia = baojia-guifei;
+		var v95 = xiangyingjia*0.95;
+        var result = x * x + y * y;
+        document.getElementById('result').innerHTML = "计算结果为：" + result;
+    }
+</script>
+</body>
+</html>
