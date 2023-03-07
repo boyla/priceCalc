@@ -73,12 +73,15 @@
 <body>
 <div class="container">
     <h1>85/95</h1>
-    <h5>过滤步骤（所有步骤输入基于上一步输出结果）：<br/>1.有效价格低于招标控制价95%;<br/>2.大于所有价格算数平均值*85%;<br/>3.低于招标控制价85%且低于原始投标均价95%作废标处理</h5>
+    <h5>
+        过滤步骤（所有步骤输入基于上一步输出结果）：<br/>1.有效价格低于招标控制价95%;<br/>2.大于所有价格算数平均值*85%;<br/>3.低于招标控制价85%且低于原始投标均价95%作废标处理
+    </h5>
     <form>
         <label for="baojia">招标价:</label>
         <input type="number" step="any" id="baojia" name="baojia"><br><br>
-        <label for="guifei">规费:</label>
-        <input type="number" step="any" id="guifei" name="guifei"><br><br>
+        <label for="guifei">不可竞争费用:</label>
+        <input type="number" step="any" id="guifei" name="guifei"><br>
+        <h3 id="pingbiaojia">评标价：-</h3>
         <label for="moni">模拟对手出价(数字用空格隔开):</label>
         <input type="text" id="moni" name="moni"><br><br>
         <label for="chujia">我方出价:</label>
@@ -108,6 +111,7 @@
         var baojia = parseFloat(document.getElementById('baojia').value);
         var guifei = parseFloat(document.getElementById('guifei').value);
         var xiangyingjia = baojia - guifei;
+        document.getElementById('pingbiaojia').innerHTML = "评标价： " + xiangyingjia;
         var v95 = xiangyingjia * 0.95;
         var ret = "95价格：" + v95 + "<br/>";
         document.getElementById('result95').innerHTML = ret;
@@ -179,7 +183,7 @@
         }
         var av95 = (sum / rawLi.length) * 0.95;
         document.getElementById('resultAv95').innerHTML = "原始投标均价*95%：" + av95;
-        while ((nums[0] < xiangyingjia * 0.85) && (nums[0]<av95)) {
+        while ((nums[0] < xiangyingjia * 0.85) && (nums[0] < av95)) {
             var fb = nums.shift();
             console.log("废标：" + fb);
         }
