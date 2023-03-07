@@ -192,12 +192,11 @@
         document.getElementById('resultLiK1').innerHTML = "1步结果：" + nums.toString();
         // 2.取K2
         var k2 = parseFloat(document.getElementById('k2_slide').value);
-        var average = sum / nums.length;
+        var average = sum / rawLi.length;
         var k2Price = average * k2;
         ret = "K2价格：" + k2Price;
         document.getElementById('resultK2').innerHTML = ret;
         console.log(ret);
-        // 2.取大于85
         var min = -1;
         nums = nums.filter((v) => {
             var pass = v < k2Price
