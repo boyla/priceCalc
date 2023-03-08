@@ -105,7 +105,7 @@
 <body>
 <div class="container">
     <h1>双随机</h1>
-    <h5>过滤步骤（所有步骤输入基于上一步输出结果）：<br/>1.随机抽取85%-90%中的一个值K1，有效价格不低于招标控制价乘以K1;<br/>2.随机抽取90%-95%中的一个值K2，有效价格不低于原始投标均价乘以K2
+    <h5>过滤步骤（所有步骤输入基于上一步输出结果）：<br/>1.随机抽取85%-90%中的一个值K1，有效价格低于招标控制价乘以K1;<br/>2.随机抽取90%-95%中的一个值K2，有效价格不低于原始投标均价乘以K2
     </h5>
     <form>
         <label for="baojia">招标价:</label>
@@ -175,10 +175,10 @@
         nums.push(chujia);
         var rawLi = nums;
         var sum = 0;
-        // 1.取大于等于K1价格
+        // 1.取小于K1价格
         nums = nums.filter((v) => {
             sum += v;
-            var pass = v >= k1Price
+            var pass = v < k1Price
             if (pass) {
             } else if (v === chujia) {
                 ret = "我方出价:" + chujia + " 未通过K1价格：" + k1Price;
