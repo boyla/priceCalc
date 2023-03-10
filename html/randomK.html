@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>抽K值</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input[type="button"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            float: right;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        .vk1 {
+            font-size: 24px;
+            color: #2196F3;
+        }
+
+        .vk2 {
+            font-size: 24px;
+            color: #2196F3;
+        }
+
+        .vk3 {
+            font-size: 24px;
+            color: #2196F3;
+        }
+
+        .range-slider {
+            position: relative;
+            background-color: #ddd;
+            border-radius: 25px;
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 50px;
+            height: 50px;
+            background-color: #2196F3;
+            border-radius: 50%;
+        }
+
+        .range-slider::-moz-range-thumb {
+            width: 50px;
+            height: 50px;
+            background-color: #2196F3;
+            border-radius: 50%;
+        }
+
+        msg {
+            font-size: 18px;
+            margin-top: 20px;
+            color: crimson;
+        }
+
+        ret {
+            font-size: 18px;
+            margin-top: 20px;
+            color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>抽K值</h1>
+    <h5>过滤步骤：<br/>基准价＝招标控制价相应价格×k1×k2 + 各有效投标的评审价的算术平均值×k3<br/>
+        k1：指在计算基准价时招标控制价相应价格的下浮比 例，由招标人在开标会上现场从0.95、0.94、0.93、0.92、 0.91、0.90
+        六个数据中随机抽取一个数据并作为基准价计算的依据；<br/>
+        k2：指招标控制价相应价格在基准价中所占权重；<br/>
+        k3：指各有效投标的评审价的算术平均值在基准价中所占权重。k2+k3＝1，且 k3 不得小于 0.4。k2 和 k3 的设置不得少于 3
+        组<br/>
+        (如 K2=0.5、K3=0.5,K2=0.4、 K3=0.6,K2=0.3、K3=0.7)，K2 和 K3 设置的组数及权重为：
+        第一组：K2=0.5、K3=0.5,第二组：K2=0.4、K3=0.6,第三组：K2=0.3、K3=0.7 ,由招标人代表在开标会上现场随机抽取确定。<br/>
+        注：K2 和 K3 取定时保留 1 位小数。
+        偏差率 =（相应价-基准价）/基准价
+        投标分数：偏差率等于基准价满分76，每低于基准价1%扣0.5分，每高于基准价1%扣1分
+    </h5>
+    <form>
+        <label for="baojia">招标价:</label>
+        <input type="number" step="any" id="baojia" name="baojia"><br><br>
+        <label for="guifei">不可竞争费用:</label>
+        <input type="number" step="any" id="guifei" name="guifei"><br>
+        <h3 id="pingbiaojia">评标价：-</h3>
+        <label for="moni">模拟对手出价(数字用空格隔开):</label>
+        <input type="text" id="moni" name="moni"><br><br>
+        <label for="chujia">我方出价:</label>
+        <input type="number" step="any" id="chujia" name="chujia"><br><br>
+
+        <label for="k1_slide">K1(0.9-0.95):</label>
+        <input type="range" id="k1_slide" name="k1_slide" value="0.9" min="0.9" max="0.95" step="0.01"
+               class="range-slider"
+               oninput="updateK1(this.value)">
+        <p class="vk1" id="k1">0.9</p><br/>
+        <label for="k2_slide">K2(0-0.6):</label>
+        <input type="range" id="k2_slide" name="k2_slide" value="0.6" min="0" max="0.6" step="0.1"
+               oninput="updateK2(this.value)">
+        <p class="vk2" id="k2">0.6</p><br/>
+
+        <label for="k3_slide">K3(0.4-1):</label>
+        <input type="range" id="k3_slide" name="k3_slide" value="0.4" min="0.4" max="1" step="0.1"
+               oninput="updateK3(this.value)">
+        <p class="vk3" id="k3">0.4</p>
+        <h3 id="jizhunjia">基准价：-</h3>
+        <input type="button" value="计算" onclick="calculate()"><br><br>
+        <ret id="result"></ret>
+        <msg id="msg"></msg>
+    </form>
+
+</div>
+<script>
+    function calculate() {
+        document.getElementById('result').innerHTML = "";
+        document.getElementById('msg').innerHTML = "";
+        var endCalc = false
+        var baojia = parseFloat(document.getElementById('baojia').value);
+        var guifei = parseFloat(document.getElementById('guifei').value);
+        var xiangyingjia = baojia - guifei;
+        document.getElementById('pingbiaojia').innerHTML = "评标价： " + xiangyingjia;
+        var k1 = parseFloat(document.getElementById('k1_slide').value);
+        var chujia = parseFloat(document.getElementById('chujia').value);
+        var moni = document.getElementById('moni').value;
+        var words = moni.split(" ");
+        var nums = words.map((word) => {
+            var f = parseFloat(word)
+            if (f > 0) {
+                return f;
+            } else {
+                ret = "模拟出价输入错误：" + word;
+                endCalc = true;
+            }
+        })
+        if (endCalc) {
+            document.getElementById('msg').innerHTML = ret;
+            console.log(ret);
+            return;
+        }
+        nums.push(chujia);
+        var rawLi = nums;
+        var sum = 0;
+        // 1.取均值
+        nums = nums.filter((v) => {
+            sum += v;
+            return true;
+        })
+        var average = sum / rawLi.length;
+        // 2.取基准价
+        var k2 = parseFloat(document.getElementById('k2_slide').value);
+        var k3 = parseFloat(document.getElementById('k3_slide').value);
+        var jizhunjia = xiangyingjia * k1 * k2 + average * k3;
+        ret = "基准价：" + jizhunjia;
+        document.getElementById('jizhunjia').innerHTML = ret;
+        console.log(ret);
+        nums.sort(function (a, b) {
+            return a - b;
+        })
+        var maxScore = 0;
+        var maxV = 0;
+        var ourScore = 0;
+        var scores = nums.map((v) => {
+            var score = 60;
+            if (v < jizhunjia) {
+                score -= Math.floor(((jizhunjia - v) / jizhunjia) * 100) * 0.5;
+            } else {
+                score -= Math.floor(((jizhunjia - v) / jizhunjia) * 100);
+            }
+            if (score > maxScore) {
+                maxScore = score;
+                maxV = v;
+            }
+            if (v === chujia) {
+                ourScore = score;
+            }
+        });
+        var str = ",我方分数：" + ourScore + "，最高分：" + maxScore + "(" + maxV + ")";
+        var success = chujia === maxV;
+        ret = success ? "我方中标" : "我方未中标";
+        if (success) {
+            document.getElementById('result').innerHTML = ret + str;
+        } else {
+            document.getElementById('msg').innerHTML = ret + str;
+        }
+        console.log(ret);
+    }
+
+    function updateK1(k) {
+        document.querySelector('.vk1').innerHTML = k;
+    }
+
+    function updateK2(k) {
+        document.querySelector('.vk2').innerHTML = k;
+        var k3 = 1 - parseFloat(k);
+        document.querySelector('.vk3').innerHTML = "" + k3;
+        document.getElementById('k3_slide').value = k3;
+    }
+
+    function updateK3(k) {
+        document.querySelector('.vk3').innerHTML = k;
+        var k2 = 1 - parseFloat(k);
+        document.querySelector('.vk2').innerHTML = "" + k2;
+        document.getElementById('k2_slide').value = k2;
+    }
+</script>
+</body>
+</html>
