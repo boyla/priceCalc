@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>抽K值</title>
+    <title>随机系数法</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
@@ -67,11 +67,6 @@
             color: #2196F3;
         }
 
-        .vk3 {
-            font-size: 24px;
-            color: #2196F3;
-        }
-
         .range-slider {
             position: relative;
             background-color: #ddd;
@@ -109,19 +104,13 @@
 </head>
 <body>
 <div class="container">
-    <h1>抽K值</h1>
-    <h5>过滤步骤：<br/>基准价＝招标控制价相应价格×k1×k2 + 各有效投标的评审价的算术平均值×k3<br/>
-        k1：指在计算基准价时招标控制价相应价格的下浮比 例，由招标人在开标会上现场从0.95、0.94、0.93、0.92、 0.91、0.90
-        六个数据中随机抽取一个数据并作为基准价计算的依据；<br/>
-        k2：指招标控制价相应价格在基准价中所占权重；<br/>
-        k3：指各有效投标的评审价的算术平均值在基准价中所占权重。k2+k3＝1，且 k3 不得小于 0.4。k2 和 k3 的设置不得少于 3
-        组<br/>
-        (如 K2=0.5、K3=0.5,K2=0.4、 K3=0.6,K2=0.3、K3=0.7)，K2 和 K3 设置的组数及权重为：
-        第一组：K2=0.5、K3=0.5,第二组：K2=0.4、K3=0.6,第三组：K2=0.3、K3=0.7 ,由招标人代表在开标会上现场随机抽取确定。<br/>
-        注：K2 和 K3 取定时保留 1 位小数。<br/>
-        偏差率 =（投标价-基准价）/基准价<br/>
-        投标分数：偏差率等于基准价满分76，每低于基准价1%扣0.5分，每高于基准价1%扣1分
-    </h5>
+    <h1>随机系数法</h1>
+    <h5>S=（A×k1+B）÷2×（1+k2）：<br/>
+        S—评标基准价，以元为单位，保留整数， 小数点后一位四舍五入；<br/>
+        A—投标最高限价相应价格 ；<br/>
+        B—各有效投标报价的评审价的算术平均值；<br/>
+        k1—取值为 0.90、0.91、0.92、0.93、 0.94、0.95，在招标文件中公布；<br/>
+        k2—随机抽取系数（取值为：-1%、-0.75%、 -0.5%、-0.25%、0、0.25%、0.5%、0.75%、1%， 由开标现场抽取）；</h5>
     <form>
         <label for="baojia">招标价:</label>
         <input type="number" step="any" id="baojia" name="baojia"><br><br>
@@ -138,15 +127,10 @@
                class="range-slider"
                oninput="updateK1(this.value)">
         <p class="vk1" id="k1">0.9</p><br/>
-        <label for="k2_slide">K2(0-0.6):</label>
-        <input type="range" id="k2_slide" name="k2_slide" value="0.6" min="0" max="0.6" step="0.1"
+        <label for="k2_slide">K2(-1% - 1%):</label>
+        <input type="range" id="k2_slide" name="k2_slide" value="-0.01" min="-0.01" max="0.01" step="0.0025"
                oninput="updateK2(this.value)">
-        <p class="vk2" id="k2">0.6</p><br/>
-
-        <label for="k3_slide">K3(0.4-1):</label>
-        <input type="range" id="k3_slide" name="k3_slide" value="0.4" min="0.4" max="1" step="0.1"
-               oninput="updateK3(this.value)">
-        <p class="vk3" id="k3">0.4</p>
+        <p class="vk2" id="k2">-0.01</p><br/>
         <h3 id="jizhunjia">基准价：-</h3>
         <input type="button" value="计算" onclick="calculate()"><br><br>
         <ret id="result"></ret>
@@ -156,6 +140,10 @@
 </div>
 <script>
     function calculate() {
+        document.getElementById('resultK1').innerHTML = "";
+        document.getElementById('resultLiK1').innerHTML = "";
+        document.getElementById('resultK2').innerHTML = "";
+        document.getElementById('resultLiK2').innerHTML = "";
         document.getElementById('result').innerHTML = "";
         document.getElementById('msg').innerHTML = "";
         var endCalc = false
@@ -164,6 +152,7 @@
         var xiangyingjia = baojia - guifei;
         document.getElementById('pingbiaojia').innerHTML = "评标价： " + xiangyingjia;
         var k1 = parseFloat(document.getElementById('k1_slide').value);
+        var k2 = parseFloat(document.getElementById('k2_slide').value);
         var chujia = parseFloat(document.getElementById('chujia').value);
         var moni = document.getElementById('moni').value;
         var words = moni.split(" ");
@@ -191,9 +180,7 @@
         })
         var average = sum / rawLi.length;
         // 2.取基准价
-        var k2 = parseFloat(document.getElementById('k2_slide').value);
-        var k3 = parseFloat(document.getElementById('k3_slide').value);
-        var jizhunjia = xiangyingjia * k1 * k2 + average * k3;
+        var jizhunjia = (xiangyingjia * k1 + average) / 2 * (1 + k2);
         ret = "基准价：" + jizhunjia;
         document.getElementById('jizhunjia').innerHTML = ret;
         console.log(ret);
@@ -235,16 +222,6 @@
 
     function updateK2(k) {
         document.querySelector('.vk2').innerHTML = k;
-        var k3 = 1 - parseFloat(k);
-        document.querySelector('.vk3').innerHTML = "" + k3;
-        document.getElementById('k3_slide').value = k3;
-    }
-
-    function updateK3(k) {
-        document.querySelector('.vk3').innerHTML = k;
-        var k2 = 1 - parseFloat(k);
-        document.querySelector('.vk2').innerHTML = "" + k2;
-        document.getElementById('k2_slide').value = k2;
     }
 </script>
 </body>
