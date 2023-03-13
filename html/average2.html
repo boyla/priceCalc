@@ -105,10 +105,11 @@
 <body>
 <div class="container">
     <h1>二次平均法</h1>
-    <h5>过滤步骤（所有步骤输入基于上一步输出结果）：<br/>1.第一次平均：确定有效投标报价的评审价的 算术平均值为 A（若有效投标人≤5
+    <h5>过滤步骤（所有步骤输入基于上一步输出结果）：<br/>1.去掉低于相应价85%且低于所有投标人平均值95%的报价<br/>2.第一次平均：确定有效投标报价的评审价的
+        算术平均值为 A（若有效投标人≤5
         家时，直接 取算术平均值为 A；若有效投标人在 6～10 家 时，去掉 1 个最高评审价和 1 个最低评审价后 取算术平均值为
         A；若有效投标人>N×10 家时， 去掉其中的 N+1 个最高评审价和 N+1 个最低评
-        审价后取算术平均值为 A，N 为自然数）;<br/>2.第二次平均：对小于或等于 A 的有效投标报 价的评审价（不含第一次平均时已去掉的评审
+        审价后取算术平均值为 A，N 为自然数）;<br/>3.第二次平均：对小于或等于 A 的有效投标报 价的评审价（不含第一次平均时已去掉的评审
         价）的二次算术平均值即为评标基准价； 算术平均值 A、评标基准价均以元为单位， 保留整数，小数点后一位四舍五入。
     </h5>
     <form>
@@ -148,8 +149,10 @@
         var chujia = parseFloat(document.getElementById('chujia').value);
         var others = document.getElementById('others').value;
         var words = others.split(" ");
+        var sum = 0;
         var nums = words.map((word) => {
-            var f = parseFloat(word)
+            var f = parseFloat(word);
+            sum += f;
             if (f > 0) {
                 return f;
             } else {
@@ -163,11 +166,28 @@
             return;
         }
         nums.push(chujia);
+        sum += chujia;
         var rawLi = nums;
         nums.sort(function (a, b) {
             return a - b
         })
-        // 1.第一次求均值
+        // 1.去双低
+        var v85 = xiangyingjia * 0.85;
+        var v95 = 0.95 * sum / nums.length;
+        nums = nums.filter((v) => {
+            var pass = !(v < v85 && v < v95);
+            if (!pass && v === chujia) {
+                ret = "我方出价：" + chujia + " 双低，85：" + v85 + "， 95：" + v95;
+                endCalc = true;
+            }
+            return pass;
+        });
+        if (endCalc) {
+            document.getElementById('msg').innerHTML = ret;
+            console.log(ret);
+            return;
+        }
+        // 2.第一次求均值
         var sum = 0;
         var len = nums.length;
         var average = 0;
@@ -204,7 +224,7 @@
             document.getElementById('msg').innerHTML = "我方未中标,出价大于一均结果：" + average;
             return;
         }
-        // 2.第二次求均值
+        // 3.第二次求均值
         var nums2 = nums.filter((v) => {
             return v <= average;
         })
