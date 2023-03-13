@@ -105,7 +105,8 @@
 <body>
 <div class="container">
     <h1>随机系数法</h1>
-    <h5>S=（A×k1+B）÷2×（1+k2）：<br/>
+    <h5>去掉低于相应价85%且低于所有投标人平均值95%的报价;<br/>
+        S=（A×k1+B）÷2×（1+k2）：<br/>
         S—评标基准价，以元为单位，保留整数， 小数点后一位四舍五入；<br/>
         A—投标最高限价相应价格 ；<br/>
         B—各有效投标报价的评审价的算术平均值；<br/>
@@ -140,10 +141,6 @@
 </div>
 <script>
     function calculate() {
-        document.getElementById('resultK1').innerHTML = "";
-        document.getElementById('resultLiK1').innerHTML = "";
-        document.getElementById('resultK2').innerHTML = "";
-        document.getElementById('resultLiK2').innerHTML = "";
         document.getElementById('result').innerHTML = "";
         document.getElementById('msg').innerHTML = "";
         var endCalc = false
@@ -179,6 +176,22 @@
             return true;
         })
         var average = sum / rawLi.length;
+        // 去双低
+        var v85 = xiangyingjia * 0.85;
+        var v95 = 0.95 * sum / nums.length;
+        nums = nums.filter((v) => {
+            var pass = !(v < v85 && v < v95);
+            if (!pass && v === chujia) {
+                ret = "我方出价：" + chujia + " 双低，85：" + v85 + "， 95：" + v95;
+                endCalc = true;
+            }
+            return pass;
+        });
+        if (endCalc) {
+            document.getElementById('msg').innerHTML = ret;
+            console.log(ret);
+            return;
+        }
         // 2.取基准价
         var jizhunjia = (xiangyingjia * k1 + average) / 2 * (1 + k2);
         ret = "基准价：" + jizhunjia;

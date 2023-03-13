@@ -110,7 +110,8 @@
 <body>
 <div class="container">
     <h1>抽K值</h1>
-    <h5>过滤步骤：<br/>基准价＝招标控制价相应价格×k1×k2 + 各有效投标的评审价的算术平均值×k3<br/>
+    <h5>过滤步骤：<br/>去掉低于相应价85%且低于所有投标人平均值95%的报价;<br/>
+        基准价＝招标控制价相应价格×k1×k2 + 各有效投标的评审价的算术平均值×k3<br/>
         k1：指在计算基准价时招标控制价相应价格的下浮比 例，由招标人在开标会上现场从0.95、0.94、0.93、0.92、 0.91、0.90
         六个数据中随机抽取一个数据并作为基准价计算的依据；<br/>
         k2：指招标控制价相应价格在基准价中所占权重；<br/>
@@ -189,6 +190,22 @@
             sum += v;
             return true;
         })
+        // 2.去双低
+        var v85 = xiangyingjia * 0.85;
+        var v95 = 0.95 * sum / nums.length;
+        nums = nums.filter((v) => {
+            var pass = !(v < v85 && v < v95);
+            if (!pass && v === chujia) {
+                ret = "我方出价：" + chujia + " 双低，85：" + v85 + "， 95：" + v95;
+                endCalc = true;
+            }
+            return pass;
+        });
+        if (endCalc) {
+            document.getElementById('msg').innerHTML = ret;
+            console.log(ret);
+            return;
+        }
         var average = sum / rawLi.length;
         // 2.取基准价
         var k2 = parseFloat(document.getElementById('k2_slide').value);
