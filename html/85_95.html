@@ -117,7 +117,7 @@
         document.getElementById('result95').innerHTML = ret;
         console.log(ret);
         var chujia = parseFloat(document.getElementById('chujia').value);
-        var moni = document.getElementById('moni').value;
+        var moni = document.getElementById('moni').value.trim();
         var words = moni.split(" ");
         var nums = words.map((word) => {
             var f = parseFloat(word)

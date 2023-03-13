@@ -147,7 +147,7 @@
         document.getElementById('pingbiaojia').innerHTML = "评标价： " + xiangyingjia;
 
         var chujia = parseFloat(document.getElementById('chujia').value);
-        var others = document.getElementById('others').value;
+        var others = document.getElementById('others').value.trim();
         var words = others.split(" ");
         var sum = 0;
         var nums = words.map((word) => {

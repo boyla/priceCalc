@@ -166,7 +166,7 @@
         document.getElementById('pingbiaojia').innerHTML = "评标价： " + xiangyingjia;
         var k1 = parseFloat(document.getElementById('k1_slide').value);
         var chujia = parseFloat(document.getElementById('chujia').value);
-        var moni = document.getElementById('moni').value;
+        var moni = document.getElementById('moni').value.trim();
         var words = moni.split(" ");
         var nums = words.map((word) => {
             var f = parseFloat(word)
