@@ -206,7 +206,14 @@
             console.log(ret);
             return;
         }
-        var average = sum / rawLi.length;
+        sum = 0;
+        nums = nums.map((v) => {
+            var newv = v - guifei;
+            sum += newv;
+            return newv;
+        });
+        var average = sum / nums.length;
+        chujia -= guifei;
         // 2.取基准价
         var k2 = parseFloat(document.getElementById('k2_slide').value);
         var k3 = parseFloat(document.getElementById('k3_slide').value);
@@ -225,7 +232,7 @@
             if (v < jizhunjia) {
                 score -= Math.floor(((jizhunjia - v) / jizhunjia) * 100) * 0.5;
             } else {
-                score -= Math.floor(((jizhunjia - v) / jizhunjia) * 100);
+                score -= Math.floor(((v - jizhunjia) / jizhunjia) * 100);
             }
             if (score > maxScore) {
                 maxScore = score;
