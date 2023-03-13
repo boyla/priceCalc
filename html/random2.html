@@ -105,7 +105,7 @@
 <body>
 <div class="container">
     <h1>双随机</h1>
-    <h5>过滤步骤（所有步骤输入基于上一步输出结果）：<br/>1.去掉低于相应价85%且低于所有投标人平均值95%的报价;<br/>2.随机抽取85%-90%中的一个值K1，有效价格低于招标控制价乘以K1;<br/>3.随机抽取90%-95%中的一个值K2，有效价格不低于原始投标均价乘以K2
+    <h5>过滤步骤（所有步骤输入基于上一步输出结果）：<br/>1.去掉低于相应价85%且低于所有投标人平均值95%的报价;<br/>2.随机抽取85%-90%中的一个值K1，有效价格大于等于招标控制价乘以K1;<br/>3.随机抽取90%-95%中的一个值K2，有效价格大于等于原始投标均价乘以K2
     </h5>
     <form>
         <label for="baojia">招标价:</label>
@@ -176,10 +176,6 @@
         var rawLi = nums;
         var sum = 0;
         // 去双低
-        nums = nums.filter((v) => {
-            sum += v;
-            return true;
-        })
         var v85 = xiangyingjia * 0.85;
         var v95 = 0.95 * sum / nums.length;
         nums = nums.filter((v) => {
@@ -188,6 +184,9 @@
                 ret = "我方出价：" + chujia + " 双低，85：" + v85 + "， 95：" + v95;
                 endCalc = true;
             }
+            if (pass) {
+                sum += v;
+            }
             return pass;
         });
         if (endCalc) {
@@ -195,10 +194,9 @@
             console.log(ret);
             return;
         }
-        // 1.取小于K1价格
+        // 1.取大于等于K1价格
         nums = nums.filter((v) => {
-            sum += v;
-            var pass = v < k1Price
+            var pass = v >= k1Price
             if (pass) {
             } else if (v === chujia) {
                 ret = "我方出价:" + chujia + " 未通过K1价格：" + k1Price;
