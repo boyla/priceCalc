@@ -129,7 +129,6 @@
         <p class="vk2" id="k2">0.9</p><br/>
         <input type="button" value="计算" onclick="calculate()"><br><br>
         <p id="resultK1"></p>
-        <p id="resultLiK1"></p><br/>
         <p id="resultK2"></p>
         <p id="resultLiK2"></p><br/>
         <ret id="result"></ret>
@@ -140,7 +139,6 @@
 <script>
     function calculate() {
         document.getElementById('resultK1').innerHTML = "";
-        document.getElementById('resultLiK1').innerHTML = "";
         document.getElementById('resultK2').innerHTML = "";
         document.getElementById('resultLiK2').innerHTML = "";
         document.getElementById('result').innerHTML = "";
@@ -189,12 +187,20 @@
             nums.push(item);
         });
         var rawLi = nums;
-        // 1.取大于等于K1价格
+        // 取K2
+        var k2 = parseFloat(document.getElementById('k2_slide').value);
+        var average = sum / rawLi.length;
+        var k2Price = average * k2;
+        var kPrice = k1Price;
+        if (k2Price < k1Price) {
+            kPrice = k2Price;
+        }
+        ret = "";
         nums = nums.filter((v) => {
-            var pass = v >= k1Price
+            var pass = v >= kPrice;
             if (pass) {
             } else if (v === chujia) {
-                ret = "我方出价:" + chujia + " 未通过K1价格：" + k1Price;
+                ret += "我方出价:" + chujia + " 小于K1和k2价格：" + k1Price + "\n";
                 endCalc = true;
             }
             return pass;
@@ -202,13 +208,7 @@
         if (endCalc) {
             document.getElementById('msg').innerHTML = ret;
             console.log(ret);
-            return;
         }
-        document.getElementById('resultLiK1').innerHTML = "1步结果：" + nums.toString();
-        // 2.取K2
-        var k2 = parseFloat(document.getElementById('k2_slide').value);
-        var average = sum / rawLi.length;
-        var k2Price = average * k2;
         ret = "K2价格：" + k2Price;
         document.getElementById('resultK2').innerHTML = ret;
         console.log(ret);
@@ -226,7 +226,7 @@
         nums.sort(function (a, b) {
             return a - b
         })
-        document.getElementById('resultLiK2').innerHTML = "2步结果：" + nums.toString();
+        document.getElementById('resultLiK2').innerHTML = "结果：" + nums.toString();
         var success = false;
         for (var j = 0; j < chujias.length; j++) {
             if (chujias[j] === nums[0]) {
