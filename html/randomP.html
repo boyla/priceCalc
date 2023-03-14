@@ -154,11 +154,9 @@
         var chujiaStrs = chujiaStr.split(" ");
         var moni = document.getElementById('moni').value.trim();
         var words = moni.split(" ");
-        var sum = 0;
         var nums = words.map((word) => {
             var f = parseFloat(word) - guifei;
             if (f > 0) {
-                sum += f;
                 return f;
             } else {
                 ret = "模拟出价输入错误：" + word;
@@ -168,7 +166,6 @@
         var chujias = chujiaStrs.map((word) => {
             var f = parseFloat(word) - guifei;
             if (f > 0) {
-                sum += f;
                 return f;
             } else {
                 ret = "我方出价输入错误：" + word;
@@ -184,19 +181,23 @@
             nums.push(item);
         });
         var rawLi = nums;
-        // 1.取均值
-        var average = sum / rawLi.length;
         // 去双低
         var v85 = xiangyingjia * 0.85;
         var v95 = 0.95 * sum / nums.length;
+        var sum = 0;
         nums = nums.filter((v) => {
             var pass = !(v < v85 && v < v95);
             if (!pass && v === chujia) {
                 ret = "我方出价：" + chujia + " 双低，85：" + v85 + "， 95：" + v95;
                 endCalc = true;
             }
+            if (pass) {
+                sum += v;
+            }
             return pass;
         });
+        // 取有效投标均值
+        var average = sum / nums.length;
         if (endCalc) {
             document.getElementById('msg').innerHTML = ret;
             console.log(ret);
@@ -212,7 +213,6 @@
         })
         var maxScore = 0;
         var maxV = 0;
-        var ourScore = 0;
         var scores = nums.map((v) => {
             var score = 60;
             if (v < jizhunjia) {
@@ -224,11 +224,8 @@
                 maxScore = score;
                 maxV = v;
             }
-            if (v === chujia) {
-                ourScore = score;
-            }
         });
-        var str = ",我方分数：" + ourScore + "，最高分：" + maxScore + "(" + maxV + ")";
+        var str = "，最高分：" + maxScore + "(报价：" + (maxV + guifei) + ")";
         var success = false;
         for (var j = 0; j < chujias.length; j++) {
             if (chujias[j] === maxV) {
