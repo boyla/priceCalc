@@ -120,8 +120,8 @@
         <h3 id="pingbiaojia">评标价：-</h3>
         <label for="moni">模拟对手出价(数字用空格隔开):</label>
         <input type="text" id="moni" name="moni"><br><br>
-        <label for="chujia">我方出价:</label>
-        <input type="number" step="any" id="chujia" name="chujia"><br><br>
+        <label for="chujia">我方出价(如有多个用空格隔开):</label>
+        <input type="text" id="chujia" name="chujia"><br><br>
 
         <label for="k1_slide">K1(0.9-0.95):</label>
         <input type="range" id="k1_slide" name="k1_slide" value="0.9" min="0.9" max="0.95" step="0.01"
@@ -150,15 +150,28 @@
         document.getElementById('pingbiaojia').innerHTML = "评标价： " + xiangyingjia;
         var k1 = parseFloat(document.getElementById('k1_slide').value);
         var k2 = parseFloat(document.getElementById('k2_slide').value);
-        var chujia = parseFloat(document.getElementById('chujia').value);
+        var chujiaStr = document.getElementById('chujia').value.trim();
+        var chujiaStrs = chujiaStr.split(" ");
         var moni = document.getElementById('moni').value.trim();
         var words = moni.split(" ");
+        var sum = 0;
         var nums = words.map((word) => {
-            var f = parseFloat(word)
+            var f = parseFloat(word) - guifei;
             if (f > 0) {
+                sum += f;
                 return f;
             } else {
                 ret = "模拟出价输入错误：" + word;
+                endCalc = true;
+            }
+        })
+        var chujias = chujiaStrs.map((word) => {
+            var f = parseFloat(word) - guifei;
+            if (f > 0) {
+                sum += f;
+                return f;
+            } else {
+                ret = "我方出价输入错误：" + word;
                 endCalc = true;
             }
         })
@@ -167,14 +180,11 @@
             console.log(ret);
             return;
         }
-        nums.push(chujia);
+        chujias.forEach(item => {
+            nums.push(item);
+        });
         var rawLi = nums;
-        var sum = 0;
         // 1.取均值
-        nums = nums.filter((v) => {
-            sum += v;
-            return true;
-        })
         var average = sum / rawLi.length;
         // 去双低
         var v85 = xiangyingjia * 0.85;
@@ -219,7 +229,13 @@
             }
         });
         var str = ",我方分数：" + ourScore + "，最高分：" + maxScore + "(" + maxV + ")";
-        var success = chujia === maxV;
+        var success = false;
+        for (var j = 0; j < chujias.length; j++) {
+            if (chujias[j] === maxV) {
+                success = true;
+                break;
+            }
+        }
         ret = success ? "我方中标" : "我方未中标";
         if (success) {
             document.getElementById('result').innerHTML = ret + str;

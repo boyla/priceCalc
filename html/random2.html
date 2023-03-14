@@ -105,7 +105,8 @@
 <body>
 <div class="container">
     <h1>双随机</h1>
-    <h5>过滤步骤（所有步骤输入基于上一步输出结果）：<br/>1.随机抽取85%-90%中的一个值K1，有效价格大于等于招标控制价乘以K1;<br/>3.随机抽取90%-95%中的一个值K2，有效价格大于等于原始投标均价乘以K2
+    <h5>
+        过滤步骤（所有步骤输入基于上一步输出结果）：<br/>1.随机抽取85%-90%中的一个值K1，有效价格大于等于招标控制价乘以K1;<br/>2.随机抽取90%-95%中的一个值K2，有效价格大于等于原始投标均价乘以K2
     </h5>
     <form>
         <label for="baojia">招标价:</label>
@@ -115,9 +116,8 @@
         <h3 id="pingbiaojia">评标价：-</h3>
         <label for="moni">模拟对手出价(数字用空格隔开):</label>
         <input type="text" id="moni" name="moni"><br><br>
-        <label for="chujia">我方出价:</label>
-        <input type="number" step="any" id="chujia" name="chujia"><br><br>
-
+        <label for="chujia">我方出价(如有多个用空格隔开):</label>
+        <input type="text" id="chujia" name="chujia"><br><br>
         <label for="k1_slide">K1(85%-90%):</label>
         <input type="range" id="k1_slide" name="k1_slide" value="0.85" min="0.85" max="0.90" step="0.01"
                class="range-slider"
@@ -155,15 +155,28 @@
         var ret = "K1价格：" + k1Price + "<br/>";
         document.getElementById('resultK1').innerHTML = ret;
         console.log(ret);
-        var chujia = parseFloat(document.getElementById('chujia').value);
+        var chujiaStr = document.getElementById('chujia').value.trim();
+        var chujiaStrs = chujiaStr.split(" ");
         var moni = document.getElementById('moni').value.trim();
         var words = moni.split(" ");
+        var sum = 0;
         var nums = words.map((word) => {
-            var f = parseFloat(word)
+            var f = parseFloat(word) - guifei;
             if (f > 0) {
+                sum += f;
                 return f;
             } else {
                 ret = "模拟出价输入错误：" + word;
+                endCalc = true;
+            }
+        })
+        var chujias = chujiaStrs.map((word) => {
+            var f = parseFloat(word) - guifei;
+            if (f > 0) {
+                sum += f;
+                return f;
+            } else {
+                ret = "我方出价输入错误：" + word;
                 endCalc = true;
             }
         })
@@ -172,9 +185,10 @@
             console.log(ret);
             return;
         }
-        nums.push(chujia);
+        chujias.forEach(item => {
+            nums.push(item);
+        });
         var rawLi = nums;
-        var sum = 0;
         // 1.取大于等于K1价格
         nums = nums.filter((v) => {
             var pass = v >= k1Price
@@ -213,7 +227,13 @@
             return a - b
         })
         document.getElementById('resultLiK2').innerHTML = "2步结果：" + nums.toString();
-        var success = chujia == nums[0]
+        var success = false;
+        for (var j = 0; j < chujias.length; j++) {
+            if (chujias[j] === nums[0]) {
+                success = true;
+                break;
+            }
+        }
         ret = success ? "我方中标" : "我方未中标";
         if (success) {
             document.getElementById('result').innerHTML = ret;

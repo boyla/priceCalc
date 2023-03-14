@@ -120,8 +120,8 @@
         <h3 id="pingbiaojia">评标价：-</h3>
         <label for="others">模拟对手出价(数字用空格隔开):</label>
         <input type="text" id="others" name="others"><br><br>
-        <label for="chujia">我方出价:</label>
-        <input type="number" step="any" id="chujia" name="chujia"><br><br>
+        <label for="chujia">我方出价(如有多个用空格隔开):</label>
+        <input type="text" id="chujia" name="chujia"><br><br>
         <input type="button" value="计算" onclick="calculate()"><br><br>
         <p id="result1"></p>
         <p id="resultLi1"></p><br/>
@@ -145,18 +145,28 @@
         var guifei = parseFloat(document.getElementById('guifei').value);
         var xiangyingjia = baojia - guifei;
         document.getElementById('pingbiaojia').innerHTML = "评标价： " + xiangyingjia;
-
-        var chujia = parseFloat(document.getElementById('chujia').value);
+        var chujiaStr = document.getElementById('chujia').value.trim();
+        var chujiaStrs = chujiaStr.split(" ");
         var others = document.getElementById('others').value.trim();
         var words = others.split(" ");
         var sum = 0;
         var nums = words.map((word) => {
-            var f = parseFloat(word);
-            sum += f;
+            var f = parseFloat(word) - guifei;
             if (f > 0) {
+                sum += f;
                 return f;
             } else {
                 ret = "模拟出价输入错误：" + word;
+                endCalc = true;
+            }
+        })
+        var chujias = chujiaStrs.map((word) => {
+            var f = parseFloat(word) - guifei;
+            if (f > 0) {
+                sum += f;
+                return f;
+            } else {
+                ret = "我方出价输入错误：" + word;
                 endCalc = true;
             }
         })
@@ -165,8 +175,9 @@
             console.log(ret);
             return;
         }
-        nums.push(chujia);
-        sum += chujia;
+        chujias.forEach(item => {
+            nums.push(item);
+        });
         var rawLi = nums;
         nums.sort(function (a, b) {
             return a - b
@@ -174,10 +185,11 @@
         // 1.去双低
         var v85 = xiangyingjia * 0.85;
         var v95 = 0.95 * sum / nums.length;
+        ret = "";
         nums = nums.filter((v) => {
             var pass = !(v < v85 && v < v95);
             if (!pass && v === chujia) {
-                ret = "我方出价：" + chujia + " 双低，85：" + v85 + "， 95：" + v95;
+                ret += "我方出价：" + chujia + " 双低，85：" + v85 + "， 95：" + v95;
                 endCalc = true;
             }
             return pass;
@@ -185,7 +197,6 @@
         if (endCalc) {
             document.getElementById('msg').innerHTML = ret;
             console.log(ret);
-            return;
         }
         // 2.第一次求均值
         var sum = 0;
@@ -248,22 +259,21 @@
                 minV = nums2[i];
             }
         }
-        var success = chujia == minV;
-        ret = success ? "我方中标" : "我方未中标,中标价格：" + minV;
+
+        var success = false;
+        for (var j = 0; j < chujias.length; j++) {
+            if (chujias[j] == minV) {
+                success = true;
+                break;
+            }
+        }
+        ret = (success ? "我方中标" : "我方未中标") + ",中标价格：" + (minV + guifei);
         if (success) {
             document.getElementById('result').innerHTML = ret;
         } else {
             document.getElementById('msg').innerHTML = ret;
         }
         console.log(ret);
-    }
-
-    function updateK1(k) {
-        document.querySelector('.vk1').innerHTML = k;
-    }
-
-    function updateK2(k) {
-        document.querySelector('.vk2').innerHTML = k;
     }
 </script>
 </body>
