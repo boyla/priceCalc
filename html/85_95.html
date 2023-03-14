@@ -233,8 +233,8 @@
         }
         document.getElementById('resultLi').innerHTML = "3步结果：" + nums.toString();
         var success = false;
-        for (const chujia in chujias) {
-            if (chujia === nums[0]) {
+        for (var j = 0; j < chujias.length; i++) {
+            if (chujias[j] === nums[0]) {
                 success = true;
                 break;
             }
