@@ -198,37 +198,19 @@
         chujias.forEach(item => {
             nums.push(item);
         });
-        var rawLi = nums;
-        var sum = 0;
-        // 1.取均值
-        nums = nums.filter((v) => {
-            sum += v;
-            return true;
-        })
-        // 2.去双低
+        // 去双低
         var v85 = xiangyingjia * 0.85;
         var v95 = 0.95 * sum / nums.length;
+        ret = "";
+        sum = 0;
         nums = nums.filter((v) => {
             var pass = !(v < v85 && v < v95);
-            if (!pass && v === chujia) {
-                ret = "我方出价：" + chujia + " 双低，85：" + v85 + "， 95：" + v95;
-                endCalc = true;
+            if (pass) {
+                sum += v;
             }
             return pass;
         });
-        if (endCalc) {
-            document.getElementById('msg').innerHTML = ret;
-            console.log(ret);
-            return;
-        }
-        sum = 0;
-        nums = nums.map((v) => {
-            var newv = v - guifei;
-            sum += newv;
-            return newv;
-        });
         var average = sum / nums.length;
-        chujia -= guifei;
         // 2.取基准价
         var k2 = parseFloat(document.getElementById('k2_slide').value);
         var k3 = parseFloat(document.getElementById('k3_slide').value);
@@ -241,7 +223,6 @@
         })
         var maxScore = 0;
         var maxV = 0;
-        var ourScore = 0;
         var scores = nums.map((v) => {
             var score = 60;
             if (v < jizhunjia) {
@@ -253,11 +234,8 @@
                 maxScore = score;
                 maxV = v;
             }
-            if (v === chujia) {
-                ourScore = score;
-            }
         });
-        var str = ",我方分数：" + ourScore + "，最高分：" + maxScore + "(" + maxV + ")";
+        var str = "最高分：" + maxScore + "(" + maxV + ")";
         var success = false;
         for (var j = 0; j < chujias.length; j++) {
             if (chujias[j] === maxV) {
