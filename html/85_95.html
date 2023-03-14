@@ -132,7 +132,6 @@
         <p id="resultLiK1"></p><br/>
         <p id="resultK2"></p>
         <p id="resultLiK2"></p><br/>
-        <p id="resultAvK1"></p>
         <p id="resultLi"></p><br/>
         <ret id="result"></ret>
         <msg id="msg"></msg>
@@ -227,14 +226,15 @@
             sum += nums[i];
         }
         var av95 = 0.95 * sum / nums.length;
-        while ((nums[0] < xiangyingjia * 0.85) && (nums[0] < av95)) {
+        var v85 = xiangyingjia * 0.85;
+        while ((nums[0] < v85) && (nums[0] < av95)) {
             var fb = nums.shift();
             console.log("废标：" + fb);
         }
         document.getElementById('resultLi').innerHTML = "3步结果：" + nums.toString();
         var success = false;
-        for (var j = 0; j < chujias.length; i++) {
-            if (chujias[j] === nums[0]) {
+        for (var j = 0; j < chujias.length; j++) {
+            if (chujias[j] == nums[0]) {
                 success = true;
                 break;
             }
