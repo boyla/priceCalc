@@ -106,7 +106,7 @@
 <div class="container">
     <h1>85/95</h1>
     <h5>
-        过滤步骤（所有步骤输入基于上一步输出结果）：<br/>1.有效价格低于招标控制价*k1(1%-100%);<br/>2.有效价格大于所有价格算数平均值*k2(1%-100%);<br/>3.低于招标控制价85%且低于原始投标均价95%作废标处理
+        过滤步骤（所有步骤输入基于上一步输出结果）：<br/>1.有效价格低于招标控制价*k1(1%-100%);<br/>2.有效价格大于所有价格算数平均值*k2(0-100%);<br/>3.低于招标控制价85%且低于原始投标均价95%作废标处理
     </h5>
     <form>
         <label for="baojia">招标价:</label>
@@ -123,10 +123,10 @@
                class="range-slider"
                oninput="updateK1(this.value)">
         <p class="vk1" id="k1">1</p><br/>
-        <label for="k2_slide">K2(1%-100%):</label>
-        <input type="range" id="k2_slide" name="k2_slide" value="1" min="0.01" max="1" step="0.01"
+        <label for="k2_slide">K2(0-100%):</label>
+        <input type="range" id="k2_slide" name="k2_slide" value="0" min="0" max="1" step="0.01"
                oninput="updateK2(this.value)">
-        <p class="vk2" id="k2">1</p><br/>
+        <p class="vk2" id="k2">0</p><br/>
         <input type="button" value="计算" onclick="calculate()"><br><br>
         <p id="resultK1"></p>
         <p id="resultLiK1"></p><br/>
@@ -186,7 +186,9 @@
             console.log(ret);
             return;
         }
-        nums.concat(chujias);
+        chujias.forEach(item => {
+            nums.push(item)
+        });
         var sumK1 = 0;
         // 1.取小于k1
         nums = nums.filter((v) => {
