@@ -106,7 +106,7 @@
 <div class="container">
     <h1>85/95</h1>
     <h5>
-        过滤步骤（所有步骤输入基于上一步输出结果）：<br/>1.有效价格低于招标控制价*k1(1%-100%);<br/>2.大于所有价格算数平均值*k2(1%-100%);<br/>3.低于招标控制价85%且低于原始投标均价95%作废标处理
+        过滤步骤（所有步骤输入基于上一步输出结果）：<br/>1.有效价格低于招标控制价*k1(1%-100%);<br/>2.有效价格大于所有价格算数平均值*k2(1%-100%);<br/>3.低于招标控制价85%且低于原始投标均价95%作废标处理
     </h5>
     <form>
         <label for="baojia">招标价:</label>
@@ -130,8 +130,8 @@
         <input type="button" value="计算" onclick="calculate()"><br><br>
         <p id="resultK1"></p>
         <p id="resultLiK1"></p><br/>
-        <p id="result85"></p>
-        <p id="resultLi85"></p><br/>
+        <p id="resultK2"></p>
+        <p id="resultLiK2"></p><br/>
         <p id="resultAvK1"></p>
         <p id="resultLi"></p><br/>
         <ret id="result"></ret>
@@ -143,8 +143,8 @@
     function calculate() {
         document.getElementById('resultK1').innerHTML = "";
         document.getElementById('resultLiK1').innerHTML = "";
-        document.getElementById('result85').innerHTML = "";
-        document.getElementById('resultLi85').innerHTML = "";
+        document.getElementById('resultK2').innerHTML = "";
+        document.getElementById('resultLiK2').innerHTML = "";
         document.getElementById('resultLi').innerHTML = "";
         document.getElementById('result').innerHTML = "";
         document.getElementById('msg').innerHTML = "";
@@ -186,7 +186,7 @@
             console.log(ret);
             return;
         }
-        nums.push(chujias);
+        nums.concat(chujias);
         var sumK1 = 0;
         // 1.取小于k1
         nums = nums.filter((v) => {
@@ -197,7 +197,7 @@
             return pass;
         })
         document.getElementById('resultLiK1').innerHTML = "K1结果：" + nums.toString();
-        var averageK2 = vk2 * sumK1 / nums.length;
+        var averageK2 = k2 * sumK1 / nums.length;
         ret = "K2价格：" + averageK2;
         document.getElementById('resultK2').innerHTML = ret;
         console.log(ret);
@@ -219,13 +219,12 @@
             return a - b
         })
         document.getElementById('resultLiK2').innerHTML = "K2结果：" + nums.toString();
-        // 3.最小值低于招标控制价85%废标处理
+        // 3.低于招标控制价85%且低于原始投标均价95%作废标处理
         var sum = 0;
         for (var i = 0; i < nums.length; i++) {
             sum += nums[i];
         }
         var av95 = 0.95 * sum / nums.length;
-        document.getElementById('resultAv95').innerHTML = "投标均价*95%：" + av95;
         while ((nums[0] < xiangyingjia * 0.85) && (nums[0] < av95)) {
             var fb = nums.shift();
             console.log("废标：" + fb);
