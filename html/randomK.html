@@ -235,7 +235,8 @@
                 maxV = v;
             }
         });
-        var str = "最高分：" + maxScore + "(" + maxV + ")";
+        var maxp = maxV + guifei;
+        var str = ",最高分：" + maxScore + "(报价：" + maxp + ")";
         var success = false;
         for (var j = 0; j < chujias.length; j++) {
             if (chujias[j] === maxV) {
