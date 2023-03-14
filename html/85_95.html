@@ -166,7 +166,7 @@
         var nums = words.map((word) => {
             var f = parseFloat(word)
             if (f > 0) {
-                return f;
+                return f - guifei;
             } else {
                 ret = "模拟出价输入错误：" + word;
                 endCalc = true;
@@ -175,7 +175,7 @@
         var chujias = chujiaStrs.map((word) => {
             var f = parseFloat(word)
             if (f > 0) {
-                return f;
+                return f - guifei;
             } else {
                 ret = "我方出价输入错误：" + word;
                 endCalc = true;
