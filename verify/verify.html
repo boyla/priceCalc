@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>激活</title>
+    <style>
+        h1 {
+            width: 100%;
+            text-align: center;
+        }
+
+        body {
+            padding-left: 15%;
+            padding-right: 15%;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+
+        input[type="button"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            float: right;
+        }
+
+        msg {
+            font-size: 18px;
+            margin-top: 20px;
+            color: crimson;
+        }
+    </style>
+</head>
+
+<body>
+
+<form>
+    <h1>激活估值器</h1><br><br>
+    <label for="code">输入激活码:<br></label><br>
+    <input type="text" id="code" name="code"><br><br><br><br><br>
+    <input type="button" value="激活" onclick="verify()"><br><br>
+    <msg id="msg"></msg>
+</form>
+
+</body>
+
+</html>
+<script type="text/javascript" src="crypto-js.js"></script>
+<script src="aes.js"></script>
+<!--<script src="verify.js"></script>-->
+<script>
+
+    /**
+     * 解密
+     * @param decryptString 要解密的字符串
+     * @param key 秘钥
+     * @returns {string} 解密后的字符串
+     */
+    function aesDecrypt(decryptString, key) {
+        var key = CryptoJS.enc.Utf8.parse(key);
+        var decrypt = CryptoJS.AES.decrypt(decryptString, key, {mode: CryptoJS.mode.ECB, padding: CryptoJS.pad.Pkcs7});
+        return CryptoJS.enc.Utf8.stringify(decrypt).toString();
+    }
+
+    function verify() {
+        var code = document.getElementById('code').value;
+        var ret = false;
+        var raw = aesDecrypt(code, "elec-app-key");
+        console.log("checkVerify raw: " + raw);
+        if (raw.length < 12) {
+            checkVerify(ret, "激活失败，请输入正确的激活码");
+            console.log("checkVerify 1");
+            return ret;
+        }
+        var strs = raw.split("-");
+        if (strs.length < 2) {
+            checkVerify(ret, "激活失败，请输入正确的激活码");
+            console.log("checkVerify 2");
+            return ret;
+        }
+        var code = parseInt(strs[1]);
+        if (2 < strs[0].indexOf('3/4/1') && code > 850 && code < 3000) {
+            localStorage.setItem('verify', true);
+            ret = true;
+        }
+        console.log("checkVerify 3, code: " + code);
+        checkVerify(ret, "激活失败，请输入正确的激活码");
+        return ret;
+    }
+
+    function checkVerify(passVerify, msg) {
+        if (passVerify) {
+            console.log("passVerify !!!");
+            self.location = 'home.html'
+        } else {
+            document.getElementById('msg').innerHTML = msg;
+        }
+    }
+
+    var passVerify = localStorage.getItem('verify');
+    console.log("passVerify:" + passVerify);
+    checkVerify(passVerify, "未激活，请输入激活码激活");
+    // var obj = document.getElementById("msg");
+    // obj.innerHTML = verify("pbes0ceLKZSCqd2jAJltgQ==");
+</script>
