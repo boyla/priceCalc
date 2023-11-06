@@ -42,4 +42,4 @@ function genPrices(n, price, p, pp) {
 let arr = genPrices(10, 1000000, 0.05, 0.3)
 // otherSum
 arr.push(101)
-console.log(arr.includes(100))
+console.log(arr.includes(101))
