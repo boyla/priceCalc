@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>85/95</title>
     <meta charset="UTF-8">
@@ -108,162 +109,242 @@
         }
     </style>
 </head>
+
 <body>
-<div class="container">
-    <a class="back" id="back" href="home.html"><< 返回主页</a><br/><br/>
+    <div class="container">
+        <a class="back" id="back" href="home.html">
+            << 返回主页</a><br /><br />
 
-    <h1>85/95</h1>
-    <h5>
-        过滤步骤（所有步骤输入基于上一步输出结果）：<br/>1.有效价格低于招标控制价*k1(1%-100%);<br/>2.有效价格大于所有价格算数平均值*k2(0-100%);<br/>3.低于招标控制价85%且低于原始投标均价95%作废标处理
-    </h5>
-    <form>
-        <label for="baojia">招标价:</label>
-        <input type="number" step="any" id="baojia" name="baojia"><br><br>
-        <label for="guifei">不可竞争费用:</label>
-        <input type="number" step="any" id="guifei" name="guifei"><br>
-        <h3 id="pingbiaojia">评标价：-</h3>
-        <label for="moni">模拟对手出价(数字用空格隔开):</label>
-        <input type="text" id="moni" name="moni"><br><br>
-        <label for="chujia">我方出价(如有多个用空格隔开):</label>
-        <input type="text" id="chujia" name="chujia"><br><br>
-        <label for="k1_slide">K1(1%-100%):</label>
-        <input type="range" id="k1_slide" name="k1_slide" value="1" min="0.01" max="1" step="0.01"
-               class="range-slider"
-               oninput="updateK1(this.value)">
-        <p class="vk1" id="k1">1</p><br/>
-        <label for="k2_slide">K2(0-100%):</label>
-        <input type="range" id="k2_slide" name="k2_slide" value="0" min="0" max="1" step="0.01"
-               oninput="updateK2(this.value)">
-        <p class="vk2" id="k2">0</p><br/>
-        <input type="button" value="计算" onclick="calculate()"><br><br>
-        <p id="resultK1"></p>
-        <p id="resultLiK1"></p><br/>
-        <p id="resultK2"></p>
-        <p id="resultLiK2"></p><br/>
-        <p id="resultLi"></p><br/>
-        <ret id="result"></ret>
-        <msg id="msg"></msg>
-    </form>
+                <h1>85/95</h1>
+                <h5>
+                    过滤步骤（所有步骤输入基于上一步输出结果）：<br />1.有效价格低于招标控制价*k1(1%-100%);<br />2.有效价格大于所有价格算数平均值*k2(0-100%);<br />3.低于招标控制价85%且低于原始投标均价95%作废标处理
+                </h5>
+                <form>
+                    <label for="baojia">招标价:</label>
+                    <input type="number" step="any" id="baojia" name="baojia"><br><br>
+                    <label for="guifei">不可竞争费用:</label>
+                    <input type="number" step="any" id="guifei" name="guifei"><br>
+                    <h3 id="pingbiaojia">评标价：-</h3>
+                    <label for="moniSum">模拟对手数量:</label>
+                    <input type="text" id="moniSum" name="moniSum" onkeyup="this.value=this.value.replace(/\D/g,'')"
+                        onafterpaste="this.value=this.value.replace(/\D/g,'')"><br><br>
+                    <label for="moniPercent">对手均价下浮点数(%):</label>
+                    <input type="text" id="moniPercent" name="moniPercent" onkeyup="if(isNaN(value))execCommand('undo')"
+                        onafterpaste="if(isNaN(value))execCommand('undo')"><br><br>
+                    <label for="pricePercent">对手价波动点数(%):</label>
+                    <input type="text" id="pricePercent" name="pricePercent" value="10"
+                        onkeyup="if(isNaN(value))execCommand('undo')"
+                        onafterpaste="if(isNaN(value))execCommand('undo')"><br><br>
 
-</div>
-<script>
-    function calculate() {
-        document.getElementById('resultK1').innerHTML = "";
-        document.getElementById('resultLiK1').innerHTML = "";
-        document.getElementById('resultK2').innerHTML = "";
-        document.getElementById('resultLiK2').innerHTML = "";
-        document.getElementById('resultLi').innerHTML = "";
-        document.getElementById('result').innerHTML = "";
-        document.getElementById('msg').innerHTML = "";
-        var endCalc = false
-        var baojia = parseFloat(document.getElementById('baojia').value);
-        var guifei = parseFloat(document.getElementById('guifei').value);
-        var xiangyingjia = baojia - guifei;
-        document.getElementById('pingbiaojia').innerHTML = "评标价： " + xiangyingjia;
-        var k1 = parseFloat(document.getElementById('k1_slide').value);
-        var k2 = parseFloat(document.getElementById('k2_slide').value);
-        var vk1 = xiangyingjia * k1;
-        var ret = "K1价格：" + vk1 + "<br/>";
-        document.getElementById('resultK1').innerHTML = ret;
-        console.log(ret);
-        var chujiaStr = document.getElementById('chujia').value.trim();
-        var moni = document.getElementById('moni').value.trim();
-        var words = moni.split(" ");
-        var chujiaStrs = chujiaStr.split(" ");
-        var nums = words.map((word) => {
-            var f = parseFloat(word)
-            if (f > 0) {
-                return f - guifei;
-            } else {
-                ret = "模拟出价输入错误：" + word;
-                endCalc = true;
-            }
-        })
-        var chujias = chujiaStrs.map((word) => {
-            var f = parseFloat(word)
-            if (f > 0) {
-                return f - guifei;
-            } else {
-                ret = "我方出价输入错误：" + word;
-                endCalc = true;
-            }
-        })
-        if (endCalc) {
-            document.getElementById('msg').innerHTML = ret;
+                    <label for="moni">模拟对手出价:</label>
+                    <p id="moni" name="moni"></p><br><br>
+
+                    <label for="chujia">我方出价(如有多个用空格隔开):</label>
+                    <input type="text" id="chujia" name="chujia"><br><br>
+                    <label for="k1_slide">K1(1%-100%):</label>
+                    <input type="range" id="k1_slide" name="k1_slide" value="1" min="0.01" max="1" step="0.01"
+                        class="range-slider" oninput="updateK1(this.value)">
+                    <p class="vk1" id="k1">1</p><br />
+                    <label for="k2_slide">K2(0-100%):</label>
+                    <input type="range" id="k2_slide" name="k2_slide" value="0" min="0" max="1" step="0.01"
+                        oninput="updateK2(this.value)">
+                    <p class="vk2" id="k2">0</p><br />
+                    <input type="button" value="计算" onclick="calculate()"><br><br>
+                    <p id="resultK1"></p>
+                    <p id="resultLiK1"></p><br />
+                    <p id="resultK2"></p>
+                    <p id="resultLiK2"></p><br />
+                    <p id="resultLi"></p><br />
+                    <ret id="result"></ret>
+                    <msg id="msg"></msg>
+                </form>
+
+    </div>
+    <script>
+        function calculate() {
+            document.getElementById('resultK1').innerHTML = "";
+            document.getElementById('resultLiK1').innerHTML = "";
+            document.getElementById('resultK2').innerHTML = "";
+            document.getElementById('resultLiK2').innerHTML = "";
+            document.getElementById('resultLi').innerHTML = "";
+            document.getElementById('result').innerHTML = "";
+            document.getElementById('msg').innerHTML = "";
+            var endCalc = false
+            var baojia = parseFloat(document.getElementById('baojia').value);
+            var guifei = parseFloat(document.getElementById('guifei').value);
+            var xiangyingjia = baojia - guifei;
+            document.getElementById('pingbiaojia').innerHTML = "评标价： " + xiangyingjia;
+            var k1 = parseFloat(document.getElementById('k1_slide').value);
+            var k2 = parseFloat(document.getElementById('k2_slide').value);
+            var vk1 = xiangyingjia * k1;
+            var ret = "K1价格：" + vk1 + "<br/>";
+            document.getElementById('resultK1').innerHTML = ret;
             console.log(ret);
-            return;
-        }
-        chujias.forEach(item => {
-            nums.push(item)
-        });
-        var sumK1 = 0;
-        // 1.取小于k1
-        nums = nums.filter((v) => {
-            var pass = v < vk1
-            if (pass) {
-                sumK1 += v;
+            var chujiaStr = document.getElementById('chujia').value.trim();
+            // gen prices
+            let sumStr = document.getElementById('moniSum').value.trim();
+            let otherSum = parseFloat(sumStr);
+            if (otherSum <= 0) {
+                ret = "模拟对手数量输入错误";
+                endCalc = true;
+                document.getElementById('msg').innerHTML = ret;
+                return;
             }
-            return pass;
-        })
-        document.getElementById('resultLiK1').innerHTML = "K1结果：" + nums.toString();
-        var averageK2 = k2 * sumK1 / nums.length;
-        ret = "K2价格：" + averageK2;
-        document.getElementById('resultK2').innerHTML = ret;
-        console.log(ret);
-        // 2.取大于K2
-        var min = -1;
-        nums = nums.filter((v) => {
-            var pass = v > averageK2
-            if (pass) {
-                if (min < 0) {
-                    min = v;
+            let percentStr = document.getElementById('moniPercent').value.trim();
+            let percent = parseFloat(percentStr) / 100;
+            if (typeof percent !== 'number') {
+                ret = "模拟浮动点数 输入错误";
+                endCalc = true;
+                document.getElementById('msg').innerHTML = ret;
+                return;
+            }
+            let pricePercentStr = document.getElementById('pricePercent').value.trim();
+            let pricePercent = parseFloat(percentStr) / 100;
+            if (typeof percent !== 'number') {
+                ret = "波动浮动点数 输入错误";
+                endCalc = true;
+                document.getElementById('msg').innerHTML = ret;
+                return;
+            }
+            function genPrices(n, price, p, pp) {
+                let s = 0;
+                const avg = price * (1 - p);
+                console.log('avg', avg)
+                const result = [];
+                let acc = 0;
+                for (let i = 0; i < n; i++) {
+                    let random = 0;
+                    if (i === (n - 1)) {
+                        random = -acc;
+                    } else {
+                        while (true) {
+                            random = pp * Math.random().toFixed(2);
+                            let tmpAcc = 0;
+                            if (acc > 0) {
+                                random = - random;
+                            }
+                            tmpAcc = acc + random;
+                            let nextR = Math.abs(tmpAcc / (n - 1));
+                            console.log('nextR', nextR)
+                            if (nextR <= pp) {
+                                acc = tmpAcc;
+                                break;
+                            }
+                        }
+                    }
+                    console.log('random', random)
+                    let element = Math.round(avg * (1 + random));
+                    result.push(element);
+                    console.log('push', element)
+                    console.log('acc', acc)
+                    s += element;
                 }
-                if (min > v) {
-                    min = v;
+                console.log('result', result)
+                console.log('s', s)
+                console.log('n', n)
+                console.log('avg', s / n)
+                return result;
+            }
+
+            let prices = genPrices(otherSum, baojia, percent, pricePercent)
+            document.getElementById('moni').innerHTML = prices.join(' ')
+            // var moni = document.getElementById('moni').value.trim();
+            // var words = moni.split(" ");
+            var chujiaStrs = chujiaStr.split(" ");
+            var nums = prices.map((p) => {
+                if (p > 0) {
+                    return p - guifei;
+                } else {
+                    ret = "模拟出价输入错误：" + p;
+                    endCalc = true;
+                }
+            })
+            var chujias = chujiaStrs.map((word) => {
+                var f = parseFloat(word)
+                if (f > 0) {
+                    return f - guifei;
+                } else {
+                    ret = "我方出价输入错误：" + word;
+                    endCalc = true;
+                }
+            })
+            if (endCalc) {
+                document.getElementById('msg').innerHTML = ret;
+                console.log(ret);
+                return;
+            }
+            chujias.forEach(item => {
+                nums.push(item)
+            });
+            var sumK1 = 0;
+            // 1.取小于k1
+            nums = nums.filter((v) => {
+                var pass = v < vk1
+                if (pass) {
+                    sumK1 += v;
+                }
+                return pass;
+            })
+            document.getElementById('resultLiK1').innerHTML = "K1结果：" + nums.toString();
+            var averageK2 = k2 * sumK1 / nums.length;
+            ret = "K2价格：" + averageK2;
+            document.getElementById('resultK2').innerHTML = ret;
+            console.log(ret);
+            // 2.取大于K2
+            var min = -1;
+            nums = nums.filter((v) => {
+                var pass = v > averageK2
+                if (pass) {
+                    if (min < 0) {
+                        min = v;
+                    }
+                    if (min > v) {
+                        min = v;
+                    }
+                }
+                return pass;
+            })
+            nums.sort(function (a, b) {
+                return a - b
+            })
+            document.getElementById('resultLiK2').innerHTML = "K2结果：" + nums.toString();
+            // 3.低于招标控制价85%且低于原始投标均价95%作废标处理
+            var sum = 0;
+            for (var i = 0; i < nums.length; i++) {
+                sum += nums[i];
+            }
+            var av95 = 0.95 * sum / nums.length;
+            var v85 = xiangyingjia * 0.85;
+            while ((nums[0] < v85) && (nums[0] < av95)) {
+                var fb = nums.shift();
+                console.log("废标：" + fb);
+            }
+            document.getElementById('resultLi').innerHTML = "3步结果：" + nums.toString();
+            var success = false;
+            for (var j = 0; j < chujias.length; j++) {
+                if (chujias[j] == nums[0]) {
+                    success = true;
+                    break;
                 }
             }
-            return pass;
-        })
-        nums.sort(function (a, b) {
-            return a - b
-        })
-        document.getElementById('resultLiK2').innerHTML = "K2结果：" + nums.toString();
-        // 3.低于招标控制价85%且低于原始投标均价95%作废标处理
-        var sum = 0;
-        for (var i = 0; i < nums.length; i++) {
-            sum += nums[i];
-        }
-        var av95 = 0.95 * sum / nums.length;
-        var v85 = xiangyingjia * 0.85;
-        while ((nums[0] < v85) && (nums[0] < av95)) {
-            var fb = nums.shift();
-            console.log("废标：" + fb);
-        }
-        document.getElementById('resultLi').innerHTML = "3步结果：" + nums.toString();
-        var success = false;
-        for (var j = 0; j < chujias.length; j++) {
-            if (chujias[j] == nums[0]) {
-                success = true;
-                break;
+            ret = success ? "我方中标" : "我方未中标";
+            ret += ",中标价格：" + nums[0] + "(" + (nums[0] + guifei) + ")";
+            if (success) {
+                document.getElementById('result').innerHTML = ret;
+            } else {
+                document.getElementById('msg').innerHTML = ret;
             }
+            console.log(ret);
         }
-        ret = success ? "我方中标" : "我方未中标";
-        ret += ",中标价格：" + nums[0];
-        if (success) {
-            document.getElementById('result').innerHTML = ret;
-        } else {
-            document.getElementById('msg').innerHTML = ret;
+
+        function updateK1(k) {
+            document.querySelector('.vk1').innerHTML = k;
         }
-        console.log(ret);
-    }
 
-    function updateK1(k) {
-        document.querySelector('.vk1').innerHTML = k;
-    }
-
-    function updateK2(k) {
-        document.querySelector('.vk2').innerHTML = k;
-    }
-</script>
+        function updateK2(k) {
+            document.querySelector('.vk2').innerHTML = k;
+        }
+    </script>
 </body>
+
 </html>

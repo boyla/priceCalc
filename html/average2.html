@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>二次平均法</title>
     <meta charset="UTF-8">
@@ -108,180 +109,261 @@
         }
     </style>
 </head>
+
 <body>
-<div class="container">
-    <a class="back" id="back" href="home.html"><< 返回主页</a><br/><br/>
-    <h1>二次平均法</h1>
-    <h5>过滤步骤（所有步骤输入基于上一步输出结果）：<br/>1.去掉低于相应价85%且低于所有投标人平均值95%的报价<br/>2.第一次平均：确定有效投标报价的评审价的
-        算术平均值为 A（若有效投标人≤5
-        家时，直接 取算术平均值为 A；若有效投标人在 6～10 家 时，去掉 1 个最高评审价和 1 个最低评审价后 取算术平均值为
-        A；若有效投标人>N×10 家时， 去掉其中的 N+1 个最高评审价和 N+1 个最低评
-        审价后取算术平均值为 A，N 为自然数）;<br/>3.第二次平均：对小于或等于 A 的有效投标报 价的评审价（不含第一次平均时已去掉的评审
-        价）的二次算术平均值即为评标基准价； 算术平均值 A、评标基准价均以元为单位， 保留整数，小数点后一位四舍五入。
-    </h5>
-    <form>
-        <label for="baojia">招标价:</label>
-        <input type="number" step="any" id="baojia" name="baojia"><br><br>
-        <label for="guifei">不可竞争费用:</label>
-        <input type="number" step="any" id="guifei" name="guifei"><br>
-        <h3 id="pingbiaojia">评标价：-</h3>
-        <label for="others">模拟对手出价(数字用空格隔开):</label>
-        <input type="text" id="others" name="others"><br><br>
-        <label for="chujia">我方出价(如有多个用空格隔开):</label>
-        <input type="text" id="chujia" name="chujia"><br><br>
-        <input type="button" value="计算" onclick="calculate()"><br><br>
-        <p id="result1"></p>
-        <p id="resultLi1"></p><br/>
-        <p id="result2"></p>
-        <p id="resultLi2"></p><br/>
-        <ret id="result"></ret>
-        <msg id="msg"></msg>
-    </form>
+    <div class="container">
+        <a class="back" id="back" href="home.html">
+            << 返回主页</a><br /><br />
+                <h1>二次平均法</h1>
+                <h5>过滤步骤（所有步骤输入基于上一步输出结果）：<br />1.去掉低于相应价85%且低于所有投标人平均值95%的报价<br />2.第一次平均：确定有效投标报价的评审价的
+                    算术平均值为 A（若有效投标人≤5
+                    家时，直接 取算术平均值为 A；若有效投标人在 6～10 家 时，去掉 1 个最高评审价和 1 个最低评审价后 取算术平均值为
+                    A；若有效投标人>N×10 家时， 去掉其中的 N+1 个最高评审价和 N+1 个最低评
+                    审价后取算术平均值为 A，N 为自然数）;<br />3.第二次平均：对小于或等于 A 的有效投标报 价的评审价（不含第一次平均时已去掉的评审
+                    价）的二次算术平均值即为评标基准价； 算术平均值 A、评标基准价均以元为单位， 保留整数，小数点后一位四舍五入。
+                </h5>
+                <form>
+                    <label for="baojia">招标价:</label>
+                    <input type="number" step="any" id="baojia" name="baojia"><br><br>
+                    <label for="guifei">不可竞争费用:</label>
+                    <input type="number" step="any" id="guifei" name="guifei"><br>
+                    <h3 id="pingbiaojia">评标价：-</h3>
+                    <label for="moniSum">模拟对手数量:</label>
+                    <input type="text" id="moniSum" name="moniSum" onkeyup="this.value=this.value.replace(/\D/g,'')"
+                        onafterpaste="this.value=this.value.replace(/\D/g,'')"><br><br>
+                    <label for="moniPercent">对手均价下浮点数(%):</label>
+                    <input type="text" id="moniPercent" name="moniPercent" onkeyup="if(isNaN(value))execCommand('undo')"
+                        onafterpaste="if(isNaN(value))execCommand('undo')"><br><br>
+                    <label for="pricePercent">对手价波动点数(%):</label>
+                    <input type="text" id="pricePercent" name="pricePercent" value="10"
+                        onkeyup="if(isNaN(value))execCommand('undo')"
+                        onafterpaste="if(isNaN(value))execCommand('undo')"><br><br>
 
-</div>
-<script>
-    function calculate() {
-        document.getElementById('result1').innerHTML = "";
-        document.getElementById('resultLi1').innerHTML = "";
-        document.getElementById('result2').innerHTML = "";
-        document.getElementById('resultLi2').innerHTML = "";
-        document.getElementById('result').innerHTML = "";
-        document.getElementById('msg').innerHTML = "";
-        var endCalc = false;
-        var baojia = parseFloat(document.getElementById('baojia').value);
-        var guifei = parseFloat(document.getElementById('guifei').value);
-        var xiangyingjia = baojia - guifei;
-        document.getElementById('pingbiaojia').innerHTML = "评标价： " + xiangyingjia;
-        var chujiaStr = document.getElementById('chujia').value.trim();
-        var chujiaStrs = chujiaStr.split(" ");
-        var others = document.getElementById('others').value.trim();
-        var words = others.split(" ");
-        var sum = 0;
-        var nums = words.map((word) => {
-            var f = parseFloat(word) - guifei;
-            if (f > 0) {
-                sum += f;
-                return f;
-            } else {
-                ret = "模拟出价输入错误：" + word;
-                endCalc = true;
-            }
-        })
-        var chujias = chujiaStrs.map((word) => {
-            var f = parseFloat(word) - guifei;
-            if (f > 0) {
-                sum += f;
-                return f;
-            } else {
-                ret = "我方出价输入错误：" + word;
-                endCalc = true;
-            }
-        })
-        if (endCalc) {
-            document.getElementById('msg').innerHTML = ret;
-            console.log(ret);
-            return;
-        }
-        chujias.forEach(item => {
-            nums.push(item);
-        });
-        var rawLi = nums;
-        nums.sort(function (a, b) {
-            return a - b
-        })
-        // 1.去双低
-        var v85 = xiangyingjia * 0.85;
-        var v95 = 0.95 * sum / nums.length;
-        ret = "";
-        nums = nums.filter((v) => {
-            var pass = !(v < v85 && v < v95);
-            if (!pass && v === chujia) {
-                ret += "我方出价：" + chujia + " 双低，85：" + v85 + "， 95：" + v95;
-                endCalc = true;
-            }
-            return pass;
-        });
-        if (endCalc) {
-            document.getElementById('msg').innerHTML = ret;
-            console.log(ret);
-        }
-        // 2.第一次求均值
-        var sum = 0;
-        var len = nums.length;
-        var average = 0;
-        if (len <= 5) {
-            //若有效投标人≤5 家时，直接 取算术平均值
-            for (var i = nums.length - 1; i >= 0; i--) {
-                sum += nums[i];
-            }
-            average = sum / nums.length;
-        } else if (len <= 10) {
-            //若有效投标人在 6～10 家 时，去掉 1 个最高评审价和 1 个最低评审价后 取算术平均值
-            nums.shift();
-            nums.pop();
-            for (var i = nums.length - 1; i >= 0; i--) {
-                sum += nums[i];
-            }
-            average = sum / nums.length;
-        } else {
-            //若有效投标人>N×10 家时， 去掉其中的 N+1 个最高评审价和 N+1 个最低评
-            var n = Math.floor(len / 10) + 1;
-            while (n > 0) {
-                nums.shift()
-                nums.pop()
-                n--;
-            }
-            for (var i = nums.length - 1; i >= 0; i--) {
-                sum += nums[i];
-            }
-            average = sum / nums.length;
-        }
-        document.getElementById('result1').innerHTML = "一均价格：" + average;
-        document.getElementById('resultLi1').innerHTML = "一均结果：" + nums.toString();
-        if (chujia > average) {
-            document.getElementById('msg').innerHTML = "我方未中标,出价大于一均结果：" + average;
-            return;
-        }
-        // 3.第二次求均值
-        var nums2 = nums.filter((v) => {
-            return v <= average;
-        })
-        sum = 0;
-        for (var i = nums2.length - 1; i >= 0; i--) {
-            sum += nums2[i];
-        }
-        var average2 = sum / nums2.length + 0.5;
-        document.getElementById('result2').innerHTML = "二均价格：" + average2;
-        document.getElementById('resultLi2').innerHTML = "二均结果：" + nums.toString();
-        var minAbs = -1;
-        var minV = 0;
-        for (var i = nums2.length - 1; i >= 0; i--) {
-            var abs = Math.abs(nums2[i] - average2);
-            if (minAbs < 0) {
-                minAbs = abs;
-                minV = nums2[i];
-            }
-            if (abs < minAbs) {
-                minAbs = abs;
-                minV = nums2[i];
-            }
-        }
+                    <label for="others">模拟对手出价:</label>
+                    <p id="others" name="others"></p><br><br>
 
-        var success = false;
-        for (var j = 0; j < chujias.length; j++) {
-            if (chujias[j] == minV) {
-                success = true;
-                break;
+                    <label for="chujia">我方出价(如有多个用空格隔开):</label>
+                    <input type="text" id="chujia" name="chujia"><br><br>
+                    <input type="button" value="计算" onclick="calculate()"><br><br>
+                    <p id="result1"></p>
+                    <p id="resultLi1"></p><br />
+                    <p id="result2"></p>
+                    <p id="resultLi2"></p><br />
+                    <ret id="result"></ret>
+                    <msg id="msg"></msg>
+                </form>
+
+    </div>
+    <script>
+        function calculate() {
+            document.getElementById('result1').innerHTML = "";
+            document.getElementById('resultLi1').innerHTML = "";
+            document.getElementById('result2').innerHTML = "";
+            document.getElementById('resultLi2').innerHTML = "";
+            document.getElementById('result').innerHTML = "";
+            document.getElementById('msg').innerHTML = "";
+            var endCalc = false;
+            var baojia = parseFloat(document.getElementById('baojia').value);
+            var guifei = parseFloat(document.getElementById('guifei').value);
+            var xiangyingjia = baojia - guifei;
+            document.getElementById('pingbiaojia').innerHTML = "评标价： " + xiangyingjia;
+            var chujiaStr = document.getElementById('chujia').value.trim();
+            var chujiaStrs = chujiaStr.split(" ");
+            // gen prices
+            let sumStr = document.getElementById('moniSum').value.trim();
+            let otherSum = parseFloat(sumStr);
+            if (otherSum <= 0) {
+                ret = "模拟对手数量输入错误";
+                endCalc = true;
+                document.getElementById('msg').innerHTML = ret;
+                return;
             }
+            let percentStr = document.getElementById('moniPercent').value.trim();
+            let percent = parseFloat(percentStr) / 100;
+            if (typeof percent !== 'number') {
+                ret = "模拟浮动点数 输入错误";
+                endCalc = true;
+                document.getElementById('msg').innerHTML = ret;
+                return;
+            }
+            let pricePercentStr = document.getElementById('pricePercent').value.trim();
+            let pricePercent = parseFloat(percentStr) / 100;
+            if (typeof percent !== 'number') {
+                ret = "波动浮动点数 输入错误";
+                endCalc = true;
+                document.getElementById('msg').innerHTML = ret;
+                return;
+            }
+            function genPrices(n, price, p, pp) {
+                let s = 0;
+                const avg = price * (1 - p);
+                console.log('avg', avg)
+                const result = [];
+                let acc = 0;
+                for (let i = 0; i < n; i++) {
+                    let random = 0;
+                    if (i === (n - 1)) {
+                        random = -acc;
+                    } else {
+                        while (true) {
+                            random = pp * Math.random().toFixed(2);
+                            let tmpAcc = 0;
+                            if (acc > 0) {
+                                random = - random;
+                            }
+                            tmpAcc = acc + random;
+                            let nextR = Math.abs(tmpAcc / (n - 1));
+                            console.log('nextR', nextR)
+                            if (nextR <= pp) {
+                                acc = tmpAcc;
+                                break;
+                            }
+                        }
+                    }
+                    console.log('random', random)
+                    let element = Math.round(avg * (1 + random));
+                    result.push(element);
+                    console.log('push', element)
+                    console.log('acc', acc)
+                    s += element;
+                }
+                console.log('result', result)
+                console.log('s', s)
+                console.log('n', n)
+                console.log('avg', s / n)
+                return result;
+            }
+
+            let prices = genPrices(otherSum, baojia, percent, pricePercent)
+            document.getElementById('others').innerHTML = prices.join(' ')
+            var sum = 0;
+            var nums = prices.map((p) => {
+                if (p > 0) {
+                    sum += p;
+                    return p - guifei;
+                } else {
+                    ret = "模拟出价输入错误：" + p;
+                    endCalc = true;
+                }
+            })
+            var chujias = chujiaStrs.map((word) => {
+                var f = parseFloat(word) - guifei;
+                if (f > 0) {
+                    sum += f;
+                    return f;
+                } else {
+                    ret = "我方出价输入错误：" + word;
+                    endCalc = true;
+                }
+            })
+            if (endCalc) {
+                document.getElementById('msg').innerHTML = ret;
+                console.log(ret);
+                return;
+            }
+            chujias.forEach(item => {
+                nums.push(item);
+            });
+            var rawLi = nums;
+            nums.sort(function (a, b) {
+                return a - b
+            })
+            // 1.去双低
+            var v85 = xiangyingjia * 0.85;
+            var v95 = 0.95 * sum / nums.length;
+            ret = "";
+            nums = nums.filter((v) => {
+                var pass = !(v < v85 && v < v95);
+                if (!pass && chujias.includes(v)) {
+                    ret += "我方出价：" + v + " 双低，85：" + v85 + "， 95：" + v95;
+                    endCalc = true;
+                }
+                return pass;
+            });
+            if (endCalc) {
+                document.getElementById('msg').innerHTML = ret;
+                console.log(ret);
+            }
+            // 2.第一次求均值
+            var sum = 0;
+            var len = nums.length;
+            var average = 0;
+            if (len <= 5) {
+                //若有效投标人≤5 家时，直接 取算术平均值
+                for (var i = nums.length - 1; i >= 0; i--) {
+                    sum += nums[i];
+                }
+                average = sum / nums.length;
+            } else if (len <= 10) {
+                //若有效投标人在 6～10 家 时，去掉 1 个最高评审价和 1 个最低评审价后 取算术平均值
+                nums.shift();
+                nums.pop();
+                for (var i = nums.length - 1; i >= 0; i--) {
+                    sum += nums[i];
+                }
+                average = sum / nums.length;
+            } else {
+                //若有效投标人>N×10 家时， 去掉其中的 N+1 个最高评审价和 N+1 个最低评
+                var n = Math.floor(len / 10) + 1;
+                while (n > 0) {
+                    nums.shift()
+                    nums.pop()
+                    n--;
+                }
+                for (var i = nums.length - 1; i >= 0; i--) {
+                    sum += nums[i];
+                }
+                average = sum / nums.length;
+            }
+            document.getElementById('result1').innerHTML = "一均价格：" + average;
+            document.getElementById('resultLi1').innerHTML = "一均结果：" + nums.toString();
+            if (chujias.filter((v) => {
+                return v <= average;
+            }).length < 1) {
+                document.getElementById('msg').innerHTML = "我方未中标,出价均大于一均结果：" + average;
+                return;
+            }
+            // 3.第二次求均值
+            var nums2 = nums.filter((v) => {
+                return v <= average;
+            })
+            sum = 0;
+            for (var i = nums2.length - 1; i >= 0; i--) {
+                sum += nums2[i];
+            }
+            var average2 = sum / nums2.length + 0.5;
+            document.getElementById('result2').innerHTML = "二均价格：" + average2;
+            document.getElementById('resultLi2').innerHTML = "二均结果：" + nums.toString();
+            var minAbs = -1;
+            var minV = 0;
+            for (var i = nums2.length - 1; i >= 0; i--) {
+                var abs = Math.abs(nums2[i] - average2);
+                if (minAbs < 0) {
+                    minAbs = abs;
+                    minV = nums2[i];
+                }
+                if (abs < minAbs) {
+                    minAbs = abs;
+                    minV = nums2[i];
+                }
+            }
+
+            var success = false;
+            for (var j = 0; j < chujias.length; j++) {
+                if (chujias[j] == minV) {
+                    success = true;
+                    break;
+                }
+            }
+            ret = (success ? "我方中标" : "我方未中标") + ",中标价格：" + (minV + guifei);
+            if (success) {
+                document.getElementById('result').innerHTML = ret;
+            } else {
+                document.getElementById('msg').innerHTML = ret;
+            }
+            console.log(ret);
         }
-        ret = (success ? "我方中标" : "我方未中标") + ",中标价格：" + (minV + guifei);
-        if (success) {
-            document.getElementById('result').innerHTML = ret;
-        } else {
-            document.getElementById('msg').innerHTML = ret;
-        }
-        console.log(ret);
-    }
-</script>
+    </script>
 </body>
+
 </html>
